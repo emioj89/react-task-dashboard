@@ -1,122 +1,26 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useMemo, useState } from 'react'
+import { TaskForm } from './components/TaskForm'
+import { TaskList } from './components/TaskList'
+import { TaskSummary } from './components/TaskSummary'
+import { useTasks } from './hooks/useTasks'
+import type { Filter, Priority, Task, TaskDraft } from './types/task'
 import './App.css'
 
+const filters: Filter[] = ['All', 'Pending', 'Completed']
+
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  const { tasks, addTask, updateTask, deleteTask, toggleTask } = useTasks()
+  const [filter, setFilter] = useState<Filter>('All')
+  const [query, setQuery] = useState('')
+  const [priority, setPriority] = useState<Priority | 'All'>('All')
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const visibleTasks = useMemo(() => {
+    const text = query.trim().toLowerCase()
+    return tasks.filter((task) => (filter === 'All' || task.status === filter.toLowerCase()) && (priority === 'All' || task.priority === priority) && (!text || `${task.title} ${task.description}`.toLowerCase().includes(text)))
+  }, [filter, priority, query, tasks])
+  const openCreate = () => { setEditingTask(null); setIsFormOpen(true) }
+  const submit = (draft: TaskDraft) => { if (editingTask) updateTask(editingTask.id, draft); else addTask(draft); setIsFormOpen(false); setEditingTask(null) }
+  return <main className="app-shell"><header className="topbar"><a className="brand" href="#dashboard"><span className="brand-mark">✓</span>TaskFlow</a><button className="button primary" onClick={openCreate}>+ New task</button></header><section className="dashboard" id="dashboard"><div className="page-heading"><div><p className="eyebrow">Your workspace</p><h1>Stay on top of your work.</h1><p className="subtitle">Plan your priorities, move work forward, and keep your day in focus.</p><button className="button primary mobile-create" onClick={openCreate}>+ New task</button></div></div><TaskSummary tasks={tasks} /><section className="task-section"><div className="section-heading"><div><h2>My tasks</h2><p>{visibleTasks.length} {visibleTasks.length === 1 ? 'task' : 'tasks'} shown</p></div><div className="filters">{filters.map((item) => <button key={item} className={filter === item ? 'filter active' : 'filter'} onClick={() => setFilter(item)}>{item}</button>)}</div></div><div className="toolbar"><label className="search"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search tasks" /></label><label className="priority">Priority<select value={priority} onChange={(event) => setPriority(event.target.value as Priority | 'All')}><option value="All">All priorities</option><option>High</option><option>Medium</option><option>Low</option></select></label></div><TaskList tasks={visibleTasks} onToggle={toggleTask} onEdit={(task) => { setEditingTask(task); setIsFormOpen(true) }} onDelete={deleteTask} onCreate={openCreate} /></section></section>{isFormOpen && <TaskForm task={editingTask} onClose={() => { setIsFormOpen(false); setEditingTask(null) }} onSubmit={submit} />}</main>
 }
-
 export default App

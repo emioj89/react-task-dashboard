@@ -1,32 +1,86 @@
-# React + TypeScript + Vite
+# TaskFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+TaskFlow is a responsive task management dashboard built with React and TypeScript, focused on clean UX, accessibility and local-first persistence.
 
-Currently, two official plugins are available:
+## Preview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![TaskFlow Preview](docs/taskflow-preview.png)
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Create tasks
+- Edit tasks
+- Delete tasks
+- Mark tasks as pending/completed
+- Low / Medium / High priorities
+- Search
+- Status filtering
+- Priority filtering
+- Task statistics
+- localStorage persistence
+- Responsive layout
+- Accessible modal
+- Keyboard navigation
+- Safe localStorage validation
+- Empty states
 
-## Expanding the Oxlint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- React
+- TypeScript
+- Vite
+- Oxlint
+- CSS
+- LocalStorage API
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Architecture
+
+```
+src/
+  components/  # UI components and accessible modals
+  data/        # Default initial data and seeds
+  hooks/       # Custom React hooks (e.g. task management & persistence)
+  types/       # TypeScript type definitions and interfaces
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Accessibility
+
+- Visible keyboard focus
+- Accessible modal
+- Escape to close
+- Focus trapping
+- ARIA labels
+- Touch-friendly controls
+
+## Getting Started
+
+```bash
+git clone https://github.com/emioj89/react-task-dashboard.git
+cd react-task-dashboard
+npm install
+npm run dev
+```
+
+## Production Build
+
+```bash
+npm run build
+```
+
+## Quality Checks
+
+```bash
+npm run lint
+```
+
+## Project Status
+
+MVP completed.
+
+This project is part of the professional portfolio of Emiliano Ostellino.
+
+## Author
+
+Emiliano Ostellino
+
+GitHub: https://github.com/emioj89
